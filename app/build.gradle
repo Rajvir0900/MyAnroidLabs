@@ -6,6 +6,11 @@ android {
     namespace 'com.cst2335.Kaur0900'
     compileSdk 33
 
+    buildFeatures{
+        viewBinding true 
+
+    }
+
     defaultConfig {
         applicationId "com.cst2335.Kaur0900"
         minSdk 27
@@ -22,6 +27,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
