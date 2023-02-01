@@ -5,8 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="ui.MainActivity">
+    tools:context=".data.data.data.ui.MainActivity"
+    tools:ignore="UseSwitchCompatOrMaterialXml">
 
+
+    <EditText
+        android:id="@+id/myedittext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="@string/hinttext"
+        android:text="@string/editmessage" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -23,12 +31,34 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         android:id="@+id/mybutton"/>
-    <EditText
-        android:layout_height="wrap_content"
+
+    <CheckBox
         android:layout_width="wrap_content"
-        android:id="@+id/myedittext"
-        android:text="@string/editmessage"
-        android:hint="@string/hinttext"/>
+        android:layout_height="wrap_content"
+        android:text="do you drink coffee?"
+        android:id="@+id/checkbox"
+        />
+
+
+
+    <RadioButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="do you drink coffee?"
+        android:id="@+id/radioButton"
+        />
+
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/logo_algonquin"
+        />
+    <Switch
+        android:id="@+id/switch1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="do you drink coffee?" />
 
 
 
