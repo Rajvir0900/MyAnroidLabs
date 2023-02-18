@@ -6,6 +6,7 @@ android {
     namespace 'com.cst2335.Kaur0900'
     compileSdk 33
 
+
     defaultConfig {
         applicationId "com.cst2335.Kaur0900"
         minSdk 27
