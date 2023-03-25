@@ -1,21 +1,21 @@
 package com.cst2335.Kaur0900;
 
-import android.os.Bundle;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
-import com.cst2335.Kaur0900.databinding.ActivityChatRoomBinding;
-import com.cst2335.Kaur0900.databinding.RecieveMessageBinding;
-import com.cst2335.Kaur0900.databinding.SentMessageBinding;
+import android.os.Bundle;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+
 import com.google.android.material.snackbar.Snackbar;
 
 import java.text.SimpleDateFormat;
@@ -23,6 +23,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+import com.cst2335.Kaur0900.databinding.ActivityChatRoomBinding;
+import com.cst2335.Kaur0900.databinding.RecieveMessageBinding;
+import com.cst2335.Kaur0900.databinding.SentMessageBinding;
 
 public class ChatRoom extends AppCompatActivity {
     ArrayList<ChatMessage> messages;
@@ -43,6 +47,13 @@ public class ChatRoom extends AppCompatActivity {
         messages = chatModel.messages.getValue();
         MessageDatabase db = Room.databaseBuilder(getApplicationContext(), MessageDatabase.class, "database-name").build();
         mDAO = db.cmDAO();
+        chatModel.selectedMessage.observe(this, (newMessageValue) -> {
+            MessageDetailsFragment chatFragment = new MessageDetailsFragment(newMessageValue);
+            FragmentManager fMgr = getSupportFragmentManager();
+            FragmentTransaction tx = fMgr.beginTransaction();
+            tx.add(R.id.fragmentlocation, chatFragment);
+            tx.commit();
+        });
         setContentView(binding.getRoot());
         if (messages == null) {
 
@@ -81,6 +92,7 @@ public class ChatRoom extends AppCompatActivity {
             });
 
         });
+
         binding.recyclerView.setAdapter(myAdapter = new RecyclerView.Adapter<MyRowHolder>() {
             @NonNull
             @Override
@@ -101,8 +113,8 @@ public class ChatRoom extends AppCompatActivity {
             @Override
             public void onBindViewHolder(@NonNull MyRowHolder holder, int position) {
                 ChatMessage chatMessage = messages.get(position);
-                holder.message.setText(chatMessage.getMessage());
-                holder.time.setText(chatMessage.getTimeSent());
+                holder.messageText.setText(chatMessage.getMessage());
+                holder.timeText.setText(chatMessage.getTimeSent());
             }
 
             @Override
@@ -124,8 +136,8 @@ public class ChatRoom extends AppCompatActivity {
     }
 
     class MyRowHolder extends RecyclerView.ViewHolder {
-        TextView message;
-        TextView time;
+        TextView messageText;
+        TextView timeText;
 
         public MyRowHolder(@NonNull View itemView) {
             super(itemView);
@@ -133,10 +145,12 @@ public class ChatRoom extends AppCompatActivity {
             itemView.setOnClickListener(clk ->  {
 
                 int position = getAbsoluteAdapterPosition();
+                ChatMessage selected = messages.get(position);
 
-                AlertDialog.Builder builder = new AlertDialog.Builder( ChatRoom.this );
+                chatModel.selectedMessage.postValue(selected);
+                /*AlertDialog.Builder builder = new AlertDialog.Builder( ChatRoom.this );
                 builder.setTitle("Question:")
-                        .setMessage("Do you want to delete the message: " + message.getText())
+                        .setMessage("Do you want to delete the message: " + messageText.getText())
                         .setNegativeButton("No", (dialog, cl)-> {})
                         .setPositiveButton("Yes", (dialog, cl) -> {
                             Executor thread = Executors.newSingleThreadExecutor();
@@ -147,19 +161,19 @@ public class ChatRoom extends AppCompatActivity {
 
                             messages.remove(position);
                             myAdapter.notifyItemRemoved(position);
-                            Snackbar.make(message,"You deleted message #"+ position, Snackbar.LENGTH_LONG)
+                            Snackbar.make(messageText,"You deleted message #"+ position, Snackbar.LENGTH_LONG)
                                     .setAction("Undo",click ->{
                                         messages.add(position, m);
                                         myAdapter.notifyItemInserted(position);
                                     })
                                     .show();
                         })
-                        .create().show();
+                        .create().show();*/
             });
 
 
-            message = itemView.findViewById(R.id.message);
-            time = itemView.findViewById(R.id.time);
+            messageText = itemView.findViewById(R.id.messageText);
+            timeText = itemView.findViewById(R.id.timeText);
         }
     }
 }
