@@ -51,7 +51,8 @@ public class ChatRoom extends AppCompatActivity {
             MessageDetailsFragment chatFragment = new MessageDetailsFragment(newMessageValue);
             FragmentManager fMgr = getSupportFragmentManager();
             FragmentTransaction tx = fMgr.beginTransaction();
-            tx.add(R.id.fragmentlocation, chatFragment);
+            tx.add(R.id.fragmentlocation, chatFragment).addToBackStack("null");
+            tx.replace(R.id.fragmentlocation, chatFragment);
             tx.commit();
         });
         setContentView(binding.getRoot());
@@ -78,7 +79,7 @@ public class ChatRoom extends AppCompatActivity {
             });
 
         });
-        binding.receiveButton.setOnClickListener(click -> {
+        binding.recievebutton.setOnClickListener(click -> {
             String message = binding.textInput.getText().toString();
             boolean sentButton = false;
             chat = new ChatMessage(message, currentDateAndTime, sentButton);
@@ -93,7 +94,7 @@ public class ChatRoom extends AppCompatActivity {
 
         });
 
-        binding.recyclerView.setAdapter(myAdapter = new RecyclerView.Adapter<MyRowHolder>() {
+        binding.recycleView.setAdapter(myAdapter = new RecyclerView.Adapter<MyRowHolder>() {
             @NonNull
             @Override
             public MyRowHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -132,7 +133,7 @@ public class ChatRoom extends AppCompatActivity {
                 }
             }
         });
-        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        binding.recycleView.setLayoutManager(new LinearLayoutManager(this));
     }
 
     class MyRowHolder extends RecyclerView.ViewHolder {
@@ -145,9 +146,11 @@ public class ChatRoom extends AppCompatActivity {
             itemView.setOnClickListener(clk ->  {
 
                 int position = getAbsoluteAdapterPosition();
+
                 ChatMessage selected = messages.get(position);
 
                 chatModel.selectedMessage.postValue(selected);
+
                 /*AlertDialog.Builder builder = new AlertDialog.Builder( ChatRoom.this );
                 builder.setTitle("Question:")
                         .setMessage("Do you want to delete the message: " + messageText.getText())
@@ -168,12 +171,13 @@ public class ChatRoom extends AppCompatActivity {
                                     })
                                     .show();
                         })
-                        .create().show();*/
+                        .create().show();
+
+                 */
             });
 
-
-            messageText = itemView.findViewById(R.id.messageText);
-            timeText = itemView.findViewById(R.id.timeText);
+            messageText = itemView.findViewById(R.id.message);
+            timeText = itemView.findViewById(R.id.time);
         }
     }
 }
