@@ -1,110 +1,148 @@
 package com.cst2335.Kaur0900;
 
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.view.View;
+import android.widget.ImageView;
 
-import java.text.CollationElementIterator;
+import androidx.appcompat.app.AppCompatActivity;
 
-/**This page contains password validation function and Onclick listener for toast messages.
- * @author Rajvir kaur
- * @param <btn>
- * @version 1.0
- */
-public class MainActivity<btn> extends AppCompatActivity {
-    /**This functions checks for special character
-     * @param c
-     * @return
-     */
-    boolean isSpecialCharacter(char c)
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.ImageRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.cst2335.Kaur0900.databinding.ActivityMainBinding;
 
-    {
-        switch (c) {
-            case '#':
-            case '?':
-            case '*':
-                return true;
-            default:
-                return false;
-        }
-    }
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-    /**
-     * This function checks the complexity of password
-     * @param pw The string object that we are checking
-     * @return Returns True
-     */
-    boolean checkPasswordComplexity(String pw) {
-        /*Holds the value of Text View*/
-        TextView tv = findViewById(R.id.TextView);
-        boolean foundUpperCase, foundLowerCase, foundNumber, foundSpecial;
-        foundUpperCase = foundLowerCase = foundNumber = foundSpecial = false;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
-        for (int i = 0; i < pw.length(); i++) {
-            char c = pw.charAt(i);
-            if (Character.isDigit(c)) {
-                foundNumber = true;
-            } else if (Character.isUpperCase(c)) {
-                foundUpperCase = true;
-            } else if (Character.isLowerCase(c)) {
-                foundLowerCase = true;
-            } else if(isSpecialCharacter(c)){
-                foundSpecial = true;
-            }
-        }
+public class MainActivity extends AppCompatActivity {
 
-        if (!foundUpperCase) {
-            tv.setText("You shall not pass!");
-            Toast.makeText(getApplicationContext(), "Upper case letter is missing", Toast.LENGTH_SHORT).show();// Say that they are missing an upper case letter;
-            return false;
-        } else if (!foundLowerCase) {
-            tv.setText("You shall not pass!");
-            Toast.makeText(getApplicationContext(), "Lower case letter is missing", Toast.LENGTH_SHORT).show(); // Say that they are missing a lower case letter;
-            return false;
-        } else if (!foundNumber) {
-            tv.setText("You shall not pass!");
-            Toast.makeText(getApplicationContext(), "Number is missing", Toast.LENGTH_SHORT).show(); // Say that they are missing a number;
-            return false;
-        } else if (!foundSpecial) {
-            Toast.makeText(getApplicationContext(), "Special character is missing", Toast.LENGTH_SHORT).show(); // Say that they are missing a character;
-            tv.setText("You shall not pass!");
-            return false;
-        } else
-            tv.setText("Your password is Complex Enough");
-        return true; //only get here if they're all true
-    }
+    protected String cityName;
+    RequestQueue queue = null;
 
-    /**
-     * Variables are declared in this function and methods are
-     * called to check the complexity of password.
-     * @param savedInstanceState
-     */
-    protected void onCreate (Bundle savedInstanceState) {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        queue = Volley.newRequestQueue(this);
+        ActivityMainBinding binding = ActivityMainBinding.inflate( getLayoutInflater() );
+        setContentView(binding.getRoot());
+        binding.forecastButton.setOnClickListener(click -> {
+            cityName = binding.cityTextField.getText().toString();
+            String url = null;
+            try {
+                url = "https://api.openweathermap.org/data/2.5/weather?q="
+                        + URLEncoder.encode(cityName,"UTF-8")
+                        + "&appid=7e943c97096a9784391a981c4d878b22&units=metric";
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
+                    (response) -> {
+                        try{
+                            // Get the JSONObject associated with "coord"
+                            JSONObject coord = response.getJSONObject("coord");
 
-        /* This holds the value for button//
+                            // Get the JSONArray associated with "weather"
+                            JSONArray weatherArray = response.getJSONArray("weather");
 
-         */
-        Button btn = findViewById(R.id.button);
-        /*This holds the value for Edit Text/
+                            // Get the JSONObject at position 0
+                            JSONObject position0 = weatherArray.getJSONObject(0);
 
-         */
-        EditText et = findViewById(R.id.editTextTextPassword);
-        btn.setOnClickListener(clk -> {
-            String password = et.getText().toString();
-            checkPasswordComplexity(password);
+                            // Get the int associated with "visibility"
+                            int vis = response.getInt("visibility");
+
+                            // Get the String associated with "name"
+                            String name = response.getString("name");
+
+                            // Get the String associated with "description"
+                            String description = position0.getString("description");
+
+                            // Get the String associated with "icon"
+                            String iconName = position0.getString("icon");
+                            // Get the JSONObject associated with "main"
+                            JSONObject mainObject = response.getJSONObject("main");
+
+                            // Get the temperature variables
+                            double current = mainObject.getDouble("temp");
+                            double min = mainObject.getDouble("temp_min");
+                            double max = mainObject.getDouble("temp_max");
+                            int humidity = mainObject.getInt("humidity");
 
 
+                            // Get the URL for the icon
+                            String imageUrl = "https://openweathermap.org/img/w/" + iconName + ".png";
+
+                            // Make the ImageRequest
+                            @SuppressLint("SetTextI18n") ImageRequest imgReq = new ImageRequest(imageUrl, image -> {
+
+                                // Save the icon to the device
+                                FileOutputStream fOut = null;
+                                try {
+                                    fOut = openFileOutput( iconName + ".png", Context.MODE_PRIVATE);
+
+                                    image.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+                                    fOut.flush();
+                                    fOut.close();
+                                    // Get the ImageView from the layout
+                                    ImageView iconImageView = findViewById(R.id.icon);
+
+                                    // Set the downloaded image as the ImageView's image
+                                    iconImageView.setImageBitmap(image);
+                                    runOnUiThread( (  )  -> {
+                                        binding.temp.setText("The current temperature is "+ current);
+                                        binding.temp.setVisibility(View.VISIBLE);
+
+                                        binding.maxTemp.setText("The max temperature is "+ max);
+                                        binding.maxTemp.setVisibility(View.VISIBLE);
+
+                                        binding.minTemp.setText("The min temperature is "+ min);
+                                        binding.minTemp.setVisibility(View.VISIBLE);
+
+                                        binding.icon.setImageBitmap(image);
+                                        binding.icon.setVisibility(View.VISIBLE);
+
+                                        binding.humidity.setText("The humidity is "+ humidity + "%");
+                                        binding.humidity.setVisibility(View.VISIBLE);
+
+                                        binding.description.setText(description);
+                                        binding.description.setVisibility(View.VISIBLE);
+
+                                    });
+
+                                } catch (FileNotFoundException e) {
+                                    e.printStackTrace();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }, 1024, 1024, ImageView.ScaleType.CENTER, null, (error ) -> {
+                                // Handle the error
+                            });
+
+                            // Add the ImageRequest to the RequestQueue
+                            queue.add(imgReq);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    },
+                    (error) -> {
+                        // Handle the error
+                    }
+            );
+
+            queue.add(request);
         });
     }
-
-
-
-
 }

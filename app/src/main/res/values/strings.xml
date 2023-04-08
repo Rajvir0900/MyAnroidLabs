@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Android Labs</string>
+    <string name="button_message">Your message here</string>
 </resources>
